@@ -8,8 +8,8 @@ onmessage = function(e) {
   var mode = e.data.mode;
   var arguments=['-hide_banner', '-i', '/input/' + files[0].name]
   if (mode == 1){
-    var params = e.data.params
-    arguments=arguments.concat(params.trim().split(" "))
+    var params = e.data.params.trim();
+    if (params!="") arguments=arguments.concat(params.split(" "));
   } else {
       var videoBitrate = e.data.videoBitrate;
       var audioBitrate = e.data.audioBitrate;
