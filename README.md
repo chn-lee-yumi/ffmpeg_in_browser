@@ -9,3 +9,24 @@ Try online: https://ffmpeg.gcc.ac.cn/
 编译参考：
 - https://github.com/ffmpegwasm/ffmpeg.wasm
 - https://jeromewu.github.io/build-ffmpeg-webassembly-version-part-2-compile-with-emscripten/
+
+为了让wasm文件使用CDN，我手动修改了`ffmpeg.js`里面的几行：
+
+```
+diff --git a/ffmpeg.js b/ffmpeg.js
+index 383d762..e0e5ee9 100644
+--- a/ffmpeg.js
++++ b/ffmpeg.js
+@@ -1306,9 +1306,9 @@ function ffmpeg_run(opts, cb) {
+    return asm[name].apply(null, arguments);
+   };
+  }
+- var wasmBinaryFile = "ffmpeg.wasm";
++ var wasmBinaryFile = "https://chn-lee-yumi.github.io/ffmpeg_on_browser/ffmpeg.wasm";
+  if (!isDataURI(wasmBinaryFile)) {
+-  wasmBinaryFile = locateFile(wasmBinaryFile);
++   //wasmBinaryFile = locateFile(wasmBinaryFile);
+  }
+  function getBinary() {
+   try {
+```

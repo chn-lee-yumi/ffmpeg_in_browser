@@ -1306,9 +1306,9 @@ function ffmpeg_run(opts, cb) {
    return asm[name].apply(null, arguments);
   };
  }
- var wasmBinaryFile = "ffmpeg.wasm";
+ var wasmBinaryFile = "https://chn-lee-yumi.github.io/ffmpeg_on_browser/ffmpeg.wasm";
  if (!isDataURI(wasmBinaryFile)) {
-  wasmBinaryFile = locateFile(wasmBinaryFile);
+   //wasmBinaryFile = locateFile(wasmBinaryFile);
  }
  function getBinary() {
   try {

@@ -1,4 +1,5 @@
 var worker = new Worker('worker.js');
+
 // var inputElement = document.getElementById("file_input")
 // inputElement.addEventListener("change", handleFiles, false)
 // function handleFiles() {
