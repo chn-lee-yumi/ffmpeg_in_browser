@@ -4,16 +4,22 @@ onmessage = function(e) {
   // console.log('ffmpeg_run', ffmpeg_run);
   console.log(e.data)
   var files = e.data.fileList;
-  var videoBitrate = e.data.videoBitrate;
-  var audioBitrate = e.data.audioBitrate;
   var outputName = e.data.outputName;
+  var mode = e.data.mode;
   var arguments=['-hide_banner', '-i', '/input/' + files[0].name]
-  console.log(videoBitrate,audioBitrate,outputName)
-  if(videoBitrate!=""){
-      arguments=arguments.concat(['-b:v', videoBitrate])
-  }
-  if(audioBitrate!=""){
-      arguments=arguments.concat(['-b:a', audioBitrate])
+  if (params == 1){
+    var params = e.data.params
+    arguments=arguments.concat(params.trim().split(" "))
+  } else {
+      var videoBitrate = e.data.videoBitrate;
+      var audioBitrate = e.data.audioBitrate;
+      console.log(videoBitrate,audioBitrate,outputName)
+      if(videoBitrate!=""){
+          arguments=arguments.concat(['-b:v', videoBitrate])
+      }
+      if(audioBitrate!=""){
+          arguments=arguments.concat(['-b:a', audioBitrate])
+      }
   }
   arguments.push(outputName)
   console.log(arguments)

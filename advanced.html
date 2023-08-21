@@ -7,31 +7,26 @@
 </head>
 <body>
 <div id="app" style="margin-left: 10%; margin-right: 10%;">
-    <h1>在线转码系统</h1>
-    <h2>系统介绍</h2>
-    <p>视频音频格式随便转。</p>
-    <p>使用浏览器转码，速度取决于你的电脑性能。仅推荐转短视频或音频，大型视频请使用专业软件转码。</p>
-    <el-link type="primary" href="advanced.html">点击切换到专家模式</el-link>
-    <h2>转码参数</h2>
-    <el-row>
-        视频码率：
-        <el-input placeholder="留空代表默认，示例值：2m, 1m, 512k" v-model="videoBitrate" style="width: 30%;"></el-input>
-        （注：音频文件请留空）
-    </el-row>
-    <el-row>
-        音频码率：
-        <el-input placeholder="留空代表默认，示例值：128k, 96k" v-model="audioBitrate" style="width: 30%;"></el-input>
-    </el-row>
-    <el-row>
-        输出文件名：
-        <el-input placeholder="" v-model="outputName" style="width: 30%;"></el-input>
-        （注：格式直接取决于文件名后缀，请勿和选择的文件同名）
-    </el-row>
-    <h2>开始转码</h2>
-    <!-- <input id="file_input" type="file" /> -->
-    <el-upload v-loading="loading" :on-change="handleFiles" :file-list="fileList" :auto-upload="false">
-        <el-button size="big" type="primary">选择文件</el-button>
-    </el-upload>
+    <h1>在线转码系统 - 专家模式</h1>
+    <el-link type="primary" href="index.html">点击切换到简单模式</el-link>
+    <h2>转码命令</h2>
+    <el-form :inline="true">
+        <el-form-item label="ffmpeg -i">
+            <el-upload ref="upload" v-loading="loading" :on-change="updateFile" :auto-upload="false" limit="1" multiple="false"
+                       :on-exceed="handleExceed">
+                <el-button size="big" type="primary">选择文件</el-button>
+            </el-upload>
+        </el-form-item>
+        <el-form-item>
+            <el-input placeholder="命令参数" v-model="params" class="input-with-select" style="width: 550px"></el-input>
+        </el-form-item>
+        <el-form-item label="-o">
+            <el-input placeholder="输出文件名" v-model="outputName" class="input-with-select" style="width: 150px">-o</el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button size="big" type="success" @click="start">运行</el-button>
+        </el-form-item>
+    </el-form>
     <h2>系统输出</h2>
     <el-card class="box-card">
         <pre id="tty"></pre>
@@ -74,24 +69,34 @@ new Vue({
   data: {
 	  loading: false,
 	  fileList: [],
-	  videoBitrate: "",
-	  audioBitrate: "",
-	  mode: 0,
+	  mode: 1,
+	  params: "-c:v copy -c:a copy",
 	  outputName: "output.mp4"
   },
   mounted:function (){
 	  window.setLoading=this.setLoading
   },
   methods: {
-    handleFiles: function (file, fileList) {
+    updateFile(files, fileList) {
+        this.fileList = fileList;
+    },
+    handleExceed(files, fileList) {
+        // 覆盖上传，参考：https://blog.csdn.net/lcy460692978/article/details/103072246
+        this.$set(fileList[0], 'raw', files[0]);
+        this.$set(fileList[0], 'name', files[0].name);
+        this.$refs.upload.clearFiles();
+        this.$refs.upload.handleStart(files[0]);
+    },
+    start: function(){
+        console.log(this.fileList);
+        if(this.fileList.length!=1) return;
 		this.loading=true
-		console.log(file.name)
-		console.log(this.videoBitrate,this.audioBitrate,this.outputName)
+		console.log(this.fileList[0].name)
+		console.log(this.params,this.outputName)
 		worker.postMessage({
-			"mode":mode,
-			"fileList":[file.raw],
-			"videoBitrate":this.videoBitrate,
-			"audioBitrate":this.audioBitrate,
+		    "mode":mode,
+			"fileList":[this.fileList[0].raw],
+			"params":this.params,
 			"outputName":this.outputName})
     },
 	setLoading: function (val){
