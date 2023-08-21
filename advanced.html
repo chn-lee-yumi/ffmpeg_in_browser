@@ -94,7 +94,7 @@ new Vue({
 		console.log(this.fileList[0].name)
 		console.log(this.params,this.outputName)
 		worker.postMessage({
-		    "mode":mode,
+		    "mode":this.mode,
 			"fileList":[this.fileList[0].raw],
 			"params":this.params,
 			"outputName":this.outputName})

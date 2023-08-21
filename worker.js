@@ -7,7 +7,7 @@ onmessage = function(e) {
   var outputName = e.data.outputName;
   var mode = e.data.mode;
   var arguments=['-hide_banner', '-i', '/input/' + files[0].name]
-  if (params == 1){
+  if (mode == 1){
     var params = e.data.params
     arguments=arguments.concat(params.trim().split(" "))
   } else {
