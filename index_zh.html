@@ -2,54 +2,53 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Online Transcoder</title>
+    <title>在线转码系统</title>
     <link crossorigin="anonymous" rel="stylesheet" href="https://cdn.bootcss.com/element-ui/2.9.2/theme-chalk/index.css">
 </head>
 <body>
 <div id="app" style="margin-left: 10%; margin-right: 10%;">
-    <h1>Online Transcoder</h1>
+    <h1>在线转码系统</h1>
     <el-row>
         <p>Language/语言:
             <el-link type="primary" href="index.html">English</el-link>
             <el-link type="primary" href="index_zh.html">中文</el-link>
         </p>
     </el-row>
-    <h2>Introduction</h2>
+    <h2>系统介绍</h2>
     <el-row>
-        <p>Convert video and audio formats easily.</p>
-        <p>Use your browser to transcode; the speed depends on your computer's performance. It's recommended for converting short videos or audio
-            files only. For large videos, use professional software for transcoding.</p>
+        <p>视频音频格式随便转。</p>
+        <p>使用浏览器转码，速度取决于你的电脑性能。仅推荐转短视频或音频，大型视频请使用专业软件转码。</p>
         <p>
-            <el-link type="warning" href="advanced.html">Click to switch to Expert Mode</el-link>
+            <el-link type="warning" href="advanced_zh.html">点击切换到专家模式</el-link>
         </p>
         <p>
-            <el-link type="success" href="https://github.com/chn-lee-yumi/ffmpeg_on_browser">This project is open source on GitHub</el-link>
+            <el-link type="success" href="https://github.com/chn-lee-yumi/ffmpeg_on_browser">本项目在 GitHub 上开源</el-link>
         </p>
         <p>
-            Other tools:
+            其它工具：
             <el-link type="success" href="https://tools.gcc.ac.cn/">https://tools.gcc.ac.cn/</el-link>
         </p>
     </el-row>
-    <h2>Transcoding Parameters</h2>
+    <h2>转码参数</h2>
     <el-row>
-        Video Bitrate:
-        <el-input placeholder="Leave blank for default, e.g., 2m, 1m, 512k" v-model="videoBitrate" style="width: 30%;"></el-input>
-        (Note: Leave blank for audio files)
+        视频码率：
+        <el-input placeholder="留空代表默认，示例值：2m, 1m, 512k" v-model="videoBitrate" style="width: 30%;"></el-input>
+        （注：音频文件请留空）
     </el-row>
     <el-row>
-        Audio Bitrate:
-        <el-input placeholder="Leave blank for default, e.g., 128k, 96k" v-model="audioBitrate" style="width: 30%;"></el-input>
+        音频码率：
+        <el-input placeholder="留空代表默认，示例值：128k, 96k" v-model="audioBitrate" style="width: 30%;"></el-input>
     </el-row>
     <el-row>
-        Output Filename:
+        输出文件名：
         <el-input placeholder="" v-model="outputName" style="width: 30%;"></el-input>
-        (Note: The format is determined by the file extension. Do not use the same name as the selected file.)
+        （注：格式直接取决于文件名后缀，请勿和选择的文件同名）
     </el-row>
-    <h2>Start Transcoding</h2>
+    <h2>开始转码</h2>
     <el-upload v-loading="loading" :on-change="handleFiles" :file-list="fileList" :auto-upload="false">
-        <el-button size="big" type="primary">Select File</el-button>
+        <el-button size="big" type="primary">选择文件</el-button>
     </el-upload>
-    <h2>System Output</h2>
+    <h2>系统输出</h2>
     <el-card class="box-card">
         <pre id="tty" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
     </el-card>
@@ -68,7 +67,7 @@ worker.onmessage = function (event) {
 		document.body.scrollTop=document.body.scrollHeight;
 	} else if (event.data.type=="file"){
 		setLoading(false)
-		alert("Transcoding complete! Click OK to download the file.")
+		alert("转码完成！点击确定下载文件。")
 		downloadFileByBlob(event.data.value,event.data.name)
 	}
 }
