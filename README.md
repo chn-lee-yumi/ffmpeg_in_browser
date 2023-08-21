@@ -1,6 +1,6 @@
-# ffmpeg_on_browser
+# FFmpeg in Browser
 
-Run ffmpeg on browser.
+Run ffmpeg in browser.
 
 Try online: https://ffmpeg.gcc.ac.cn/
 
