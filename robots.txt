@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://chn-lee-yumi.github.io/ffmpeg_in_browser/sitemap.txt

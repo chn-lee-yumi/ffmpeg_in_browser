@@ -22,7 +22,7 @@ index 383d762..e0e5ee9 100644
    };
   }
 - var wasmBinaryFile = "ffmpeg.wasm";
-+ var wasmBinaryFile = "https://chn-lee-yumi.github.io/ffmpeg_on_browser/ffmpeg.wasm";
++ var wasmBinaryFile = "https://chn-lee-yumi.github.io/ffmpeg_in_browser/ffmpeg.wasm";
   if (!isDataURI(wasmBinaryFile)) {
 -  wasmBinaryFile = locateFile(wasmBinaryFile);
 +   //wasmBinaryFile = locateFile(wasmBinaryFile);
