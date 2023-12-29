@@ -30,3 +30,8 @@ index 383d762..e0e5ee9 100644
   function getBinary() {
    try {
 ```
+
+# TODO
+
+- 增加FFmpeg命令生成工具
+- 增加更多编解码器支持
