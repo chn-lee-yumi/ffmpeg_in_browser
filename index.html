@@ -5,10 +5,10 @@
     <title>Online Converter</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="FFmpeg online converter. Online audio and video converter. Easily convert video and audio formats using your browser. Converting speed depends on your computer's performance.">
-    <link crossorigin="anonymous" rel="stylesheet" href="https://cdn.bootcss.com/element-ui/2.9.2/theme-chalk/index.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.15.14/lib/theme-chalk/index.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="alternate" hreflang="en" href="index.html" />
-    <link rel="alternate" hreflang="zh" href="index_zh.html" />
+    <link rel="alternate" hreflang="en" href="index.html"/>
+    <link rel="alternate" hreflang="zh" href="index_zh.html"/>
 </head>
 <body>
 <div id="app" style="margin-left: 10%; margin-right: 10%;">
@@ -28,7 +28,9 @@
             <el-link type="warning" href="advanced.html">Click to switch to Expert Mode</el-link>
         </p>
         <p>
-            <el-link type="success" href="https://github.com/chn-lee-yumi/ffmpeg_in_browser">This project is open source on GitHub (Welcome to provide suggestions and feedback through issues)</el-link>
+            <el-link type="success" href="https://github.com/chn-lee-yumi/ffmpeg_in_browser">This project is open source on GitHub (Welcome to provide
+                suggestions and feedback through issues)
+            </el-link>
         </p>
         <p>
             Other tools:
@@ -56,68 +58,61 @@
     </el-upload>
     <h2>System Output</h2>
     <el-card class="box-card">
-        <pre id="tty" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
+        <pre id="tty" style="white-space: pre-wrap; word-wrap: break-word;">Loading FFmpeg, please wait...</pre>
     </el-card>
 </div>
 </body>
-<script crossorigin="anonymous" src="https://cdn.bootcss.com/vue/2.6.10/vue.min.js"></script>
-<script crossorigin="anonymous" src="https://cdn.bootcss.com/element-ui/2.9.2/index.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/vue@2.7.16/dist/vue.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/element-ui@2.15.14/lib/index.js"></script>
+<script src="url.js"></script>
+<script src="common.js"></script>
 <script>
-var worker = new Worker('worker.js');
-
-worker.onmessage = function (event) {
-	console.log(event)
-	if(event.data.type=="tty"){
-		var temp=document.getElementById("tty").innerHTML
-		document.getElementById("tty").innerHTML=temp+"</br>"+event.data.value
-		document.body.scrollTop=document.body.scrollHeight;
-	} else if (event.data.type=="file"){
-		setLoading(false)
-		alert("Transcoding complete! Click OK to download the file.")
-		downloadFileByBlob(event.data.value,event.data.name)
-	}
-}
-
-function downloadFileByBlob(blobUrl, filename) {
-    const eleLink = document.createElement('a')
-    eleLink.download = filename
-    eleLink.style.display = 'none'
-    eleLink.href = blobUrl
-    document.body.appendChild(eleLink)
-    eleLink.click()
-    document.body.removeChild(eleLink)
-}
-
 new Vue({
-  el: '#app',
-  data: {
-	  loading: false,
-	  fileList: [],
-	  videoBitrate: "",
-	  audioBitrate: "",
-	  mode: 0,
-	  outputName: "output.mp4"
-  },
-  mounted:function (){
-	  window.setLoading=this.setLoading
-  },
-  methods: {
-    handleFiles: function (file, fileList) {
-		this.loading=true
-		console.log(file.name)
-		console.log(this.videoBitrate,this.audioBitrate,this.outputName)
-		worker.postMessage({
-			"mode":this.mode,
-			"fileList":[file.raw],
-			"videoBitrate":this.videoBitrate,
-			"audioBitrate":this.audioBitrate,
-			"outputName":this.outputName})
+    el: '#app',
+    data: {
+        loading: false,
+        fileList: [],
+        videoBitrate: "",
+        audioBitrate: "",
+        outputName: "output.mp4"
     },
-	setLoading: function (val){
-		this.loading=val
-		this.fileList=[]
-	}
-  }
+    mounted: async function() {
+        this.loading = true;
+        await load();
+        this.loading = false;
+        log("FFmpeg Loaded!");
+    },
+    methods: {
+        handleFiles: async function(file, fileList) {
+            this.loading = true;
+            console.log(file.name);
+            const inputDir = '/input';
+            const inputFile = `${inputDir}/${file.name}`;
+            await ffmpeg.createDir(inputDir);
+            await ffmpeg.mount('WORKERFS', {
+                files: [file.raw],
+            }, inputDir);
+            var args = ['-i', inputFile];
+            if (this.videoBitrate != "") {
+                args = args.concat(['-b:v', this.videoBitrate])
+            }
+            if (this.audioBitrate != "") {
+                args = args.concat(['-b:a', this.audioBitrate])
+            }
+            args.push(this.outputName);
+            this.fileList = [];
+            console.log(args);
+            await ffmpeg.exec(args);
+            const data = await ffmpeg.readFile(this.outputName);
+            downloadFileByBlob(URL.createObjectURL(new Blob([data.buffer], {
+                type: "application/octet-stream"
+            })), this.outputName);
+            await ffmpeg.unmount(inputDir);
+            await ffmpeg.deleteDir(inputDir);
+            this.loading = false;
+            log("Exporting output file...")
+        }
+    }
 })
 </script>
 </html>

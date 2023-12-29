@@ -5,10 +5,10 @@
     <title>Online Converter - Expert Mode (Web-based FFmpeg)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="FFmpeg online converter. Convert videos/audio in-browser via FFmpeg. Expert Mode for FFmpeg-savvy users. Best for quick file conversions due to wasm efficiency.">
-    <link crossorigin="anonymous" rel="stylesheet" href="https://cdn.bootcss.com/element-ui/2.9.2/theme-chalk/index.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.15.14/lib/theme-chalk/index.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="alternate" hreflang="en" href="advanced.html" />
-    <link rel="alternate" hreflang="zh" href="advanced_zh.html" />
+    <link rel="alternate" hreflang="en" href="advanced.html"/>
+    <link rel="alternate" hreflang="zh" href="advanced_zh.html"/>
 </head>
 <body>
 <div id="app" style="margin-left: 10%; margin-right: 10%;">
@@ -21,13 +21,15 @@
     </el-row>
     <h2>Introduction</h2>
     <el-row>
-        <p>Convert with FFmpeg in your browser. Using Expert Mode implies familiarity with FFmpeg's parameters. Due to wasm efficiency
-            considerations, it's recommended for converting short videos or audio files only.</p>
+        <p>Convert with FFmpeg in your browser (based on FFmpeg.wasm). Using Expert Mode implies familiarity with FFmpeg's parameters. Due to wasm
+            efficiency considerations, it's recommended for converting only short videos or audio files.</p>
         <p>
             <el-link type="warning" href="index.html">Click to switch to Simple Mode</el-link>
         </p>
         <p>
-            <el-link type="success" href="https://github.com/chn-lee-yumi/ffmpeg_in_browser">This project is open source on GitHub (Welcome to provide suggestions and feedback through issues)</el-link>
+            <el-link type="success" href="https://github.com/chn-lee-yumi/ffmpeg_in_browser">This project is open source on GitHub (Welcome to provide
+                suggestions and feedback through issues)
+            </el-link>
         </p>
         <p>
             Other tools:
@@ -37,8 +39,7 @@
     <h2>Transcoding Command</h2>
     <el-form :inline="true">
         <el-form-item label="ffmpeg -i">
-            <el-upload ref="upload" v-loading="loading" :on-change="updateFile" :auto-upload="false" limit="1" multiple="false"
-                       :on-exceed="handleExceed">
+            <el-upload ref="upload" :on-change="handleFiles" :auto-upload="false" limit="1" multiple="false" :on-exceed="handleExceed">
                 <el-button size="big" type="primary">Select File</el-button>
             </el-upload>
         </el-form-item>
@@ -49,82 +50,72 @@
             <el-input placeholder="Output Filename" v-model="outputName" class="input-with-select" style="width: 150px"></el-input>
         </el-form-item>
         <el-form-item>
-            <el-button size="big" type="success" @click="start">Run</el-button>
+            <el-button size="big" type="success" @click="start" v-loading="loading">Run</el-button>
         </el-form-item>
     </el-form>
     <h2>System Output</h2>
     <el-card class="box-card">
-        <pre id="tty" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
+        <pre id="tty" style="white-space: pre-wrap; word-wrap: break-word;">Loading FFmpeg, please wait...</pre>
     </el-card>
 </div>
 </body>
-<script crossorigin="anonymous" src="https://cdn.bootcss.com/vue/2.6.10/vue.min.js"></script>
-<script crossorigin="anonymous" src="https://cdn.bootcss.com/element-ui/2.9.2/index.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/vue@2.7.16/dist/vue.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/element-ui@2.15.14/lib/index.js"></script>
+<script src="url.js"></script>
+<script src="common.js"></script>
 <script>
-var worker = new Worker('worker.js');
-
-worker.onmessage = function (event) {
-	console.log(event)
-	if(event.data.type=="tty"){
-		var temp=document.getElementById("tty").innerHTML
-		document.getElementById("tty").innerHTML=temp+"</br>"+event.data.value
-		document.body.scrollTop=document.body.scrollHeight;
-	} else if (event.data.type=="file"){
-		setLoading(false)
-		alert("Transcoding complete! Click OK to download the file.")
-		downloadFileByBlob(event.data.value,event.data.name)
-	}
-}
-
-function downloadFileByBlob(blobUrl, filename) {
-    const eleLink = document.createElement('a')
-    eleLink.download = filename
-    eleLink.style.display = 'none'
-    eleLink.href = blobUrl
-    document.body.appendChild(eleLink)
-    eleLink.click()
-    document.body.removeChild(eleLink)
-}
-
 new Vue({
-  el: '#app',
-  data: {
-	  loading: false,
-	  fileList: [],
-	  mode: 1,
-	  params: "-c:v copy -c:a copy",
-	  outputName: "output.mp4"
-  },
-  mounted:function (){
-	  window.setLoading=this.setLoading
-  },
-  methods: {
-    updateFile(files, fileList) {
-        this.fileList = fileList;
+    el: '#app',
+    data: {
+        loading: false,
+        fileList: [],
+        file: null,
+        params: "-c:v copy -c:a copy",
+        outputName: "output.mp4"
     },
-    handleExceed(files, fileList) {
-        this.$set(fileList[0], 'raw', files[0]);
-        this.$set(fileList[0], 'name', files[0].name);
-        this.$refs.upload.clearFiles();
-        this.$refs.upload.handleStart(files[0]);
+    mounted: async function() {
+        this.loading = true;
+        await load();
+        this.loading = false;
+        log("FFmpeg Loaded!");
     },
-    start: function(){
-        console.log(this.fileList);
-        if(this.fileList.length!=1) return;
-		this.loading=true
-		console.log(this.fileList[0].name)
-		console.log(this.params,this.outputName)
-		worker.postMessage({
-		    "mode":this.mode,
-			"fileList":[this.fileList[0].raw],
-			"params":this.params,
-			"outputName":this.outputName})
-    },
-	setLoading: function (val){
-		this.loading=val
-		this.fileList=[]
-	}
-  }
+    methods: {
+        handleFiles(file, fileList) {
+            this.file = file;
+            this.fileList = fileList;
+        },
+        handleExceed(files, fileList) {
+            this.$set(fileList[0], 'raw', files[0]);
+            this.$set(fileList[0], 'name', files[0].name);
+            this.$refs.upload.clearFiles();
+            this.$refs.upload.handleStart(files[0]);
+        },
+        start: async function() {
+            const file = this.file;
+            this.loading = true;
+            console.log(file.name);
+            const inputDir = '/input';
+            const inputFile = `${inputDir}/${file.name}`;
+            await ffmpeg.createDir(inputDir);
+            await ffmpeg.mount('WORKERFS', {
+                files: [file.raw],
+            }, inputDir);
+            var args = ['-i', inputFile];
+            var params = this.params.trim();
+            if (params != "") args = args.concat(params.split(" "));
+            args.push(this.outputName);
+            console.log(args);
+            await ffmpeg.exec(args);
+            const data = await ffmpeg.readFile(this.outputName);
+            downloadFileByBlob(URL.createObjectURL(new Blob([data.buffer], {
+                type: "application/octet-stream"
+            })), this.outputName);
+            await ffmpeg.unmount(inputDir);
+            await ffmpeg.deleteDir(inputDir);
+            this.loading = false;
+            log("Exporting output file...")
+        }
+    }
 })
 </script>
 </html>

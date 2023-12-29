@@ -5,7 +5,7 @@
     <title>在线转码系统 - 专家模式（网页版FFmpeg）</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="FFmpeg在线转码。在浏览器中使用FFmpeg进行转换。专家模式需要熟悉FFmpeg参数。由于wasm效率，仅推荐用于转换短视频或音频文件。">
-    <link crossorigin="anonymous" rel="stylesheet" href="https://cdn.bootcss.com/element-ui/2.9.2/theme-chalk/index.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/element-ui/2.15.14/theme-chalk/index.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="alternate" hreflang="en" href="advanced.html" />
     <link rel="alternate" hreflang="zh" href="advanced_zh.html" />
@@ -21,7 +21,7 @@
     </el-row>
     <h2>系统介绍</h2>
     <el-row>
-        <p>在你的浏览器上运行FFmpeg进行转码。使用专家模式意味着你熟悉FFmpeg的参数。出于wasm的效率考虑，仅推荐转短视频或音频。</p>
+        <p>在你的浏览器上运行FFmpeg进行转码（基于FFmpeg.wasm）。使用专家模式意味着你熟悉FFmpeg的参数。出于wasm的效率考虑，仅推荐转短视频或音频。</p>
         <el-link type="warning" href="index_zh.html">点击切换到简单模式</el-link>
         <p>
             <el-link type="success" href="https://github.com/chn-lee-yumi/ffmpeg_in_browser">本项目在 GitHub 上开源（欢迎通过issue提建议和反馈）</el-link>
@@ -34,8 +34,7 @@
     <h2>转码命令</h2>
     <el-form :inline="true">
         <el-form-item label="ffmpeg -i">
-            <el-upload ref="upload" v-loading="loading" :on-change="updateFile" :auto-upload="false" limit="1" multiple="false"
-                       :on-exceed="handleExceed">
+            <el-upload ref="upload" :on-change="handleFiles" :auto-upload="false" limit="1" multiple="false" :on-exceed="handleExceed">
                 <el-button size="big" type="primary">选择文件</el-button>
             </el-upload>
         </el-form-item>
@@ -46,82 +45,72 @@
             <el-input placeholder="输出文件名" v-model="outputName" class="input-with-select" style="width: 150px"></el-input>
         </el-form-item>
         <el-form-item>
-            <el-button size="big" type="success" @click="start">运行</el-button>
+            <el-button size="big" type="success" @click="start" v-loading="loading">运行</el-button>
         </el-form-item>
     </el-form>
     <h2>系统输出</h2>
     <el-card class="box-card">
-        <pre id="tty" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
+        <pre id="tty" style="white-space: pre-wrap; word-wrap: break-word;">正在加载FFmpeg，请耐心等候...</pre>
     </el-card>
 </div>
 </body>
-<script crossorigin="anonymous" src="https://cdn.bootcss.com/vue/2.6.10/vue.min.js"></script>
-<script crossorigin="anonymous" src="https://cdn.bootcss.com/element-ui/2.9.2/index.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/vue@2.7.16/dist/vue.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/element-ui@2.15.14/lib/index.js"></script>
+<script src="url.js"></script>
+<script src="common.js"></script>
 <script>
-var worker = new Worker('worker.js');
-
-worker.onmessage = function (event) {
-	console.log(event)
-	if(event.data.type=="tty"){
-		var temp=document.getElementById("tty").innerHTML
-		document.getElementById("tty").innerHTML=temp+"</br>"+event.data.value
-		document.body.scrollTop=document.body.scrollHeight;
-	} else if (event.data.type=="file"){
-		setLoading(false)
-		alert("转码完成！点击确定下载文件。")
-		downloadFileByBlob(event.data.value,event.data.name)
-	}
-}
-
-function downloadFileByBlob(blobUrl, filename) {
-    const eleLink = document.createElement('a')
-    eleLink.download = filename
-    eleLink.style.display = 'none'
-    eleLink.href = blobUrl
-    document.body.appendChild(eleLink)
-    eleLink.click()
-    document.body.removeChild(eleLink)
-}
-
 new Vue({
-  el: '#app',
-  data: {
-	  loading: false,
-	  fileList: [],
-	  mode: 1,
-	  params: "-c:v copy -c:a copy",
-	  outputName: "output.mp4"
-  },
-  mounted:function (){
-	  window.setLoading=this.setLoading
-  },
-  methods: {
-    updateFile(files, fileList) {
-        this.fileList = fileList;
+    el: '#app',
+    data: {
+        loading: false,
+        fileList: [],
+        file: null,
+        params: "-c:v copy -c:a copy",
+        outputName: "output.mp4"
     },
-    handleExceed(files, fileList) {
-        this.$set(fileList[0], 'raw', files[0]);
-        this.$set(fileList[0], 'name', files[0].name);
-        this.$refs.upload.clearFiles();
-        this.$refs.upload.handleStart(files[0]);
+    mounted: async function() {
+        this.loading = true;
+        await load();
+        this.loading = false;
+        log("FFmpeg Loaded!");
     },
-    start: function(){
-        console.log(this.fileList);
-        if(this.fileList.length!=1) return;
-		this.loading=true
-		console.log(this.fileList[0].name)
-		console.log(this.params,this.outputName)
-		worker.postMessage({
-		    "mode":this.mode,
-			"fileList":[this.fileList[0].raw],
-			"params":this.params,
-			"outputName":this.outputName})
-    },
-	setLoading: function (val){
-		this.loading=val
-		this.fileList=[]
-	}
-  }
+    methods: {
+        handleFiles(file, fileList) {
+            this.file = file;
+            this.fileList = fileList;
+        },
+        handleExceed(files, fileList) {
+            this.$set(fileList[0], 'raw', files[0]);
+            this.$set(fileList[0], 'name', files[0].name);
+            this.$refs.upload.clearFiles();
+            this.$refs.upload.handleStart(files[0]);
+        },
+        start: async function() {
+            const file = this.file;
+            this.loading = true;
+            console.log(file.name);
+            const inputDir = '/input';
+            const inputFile = `${inputDir}/${file.name}`;
+            await ffmpeg.createDir(inputDir);
+            await ffmpeg.mount('WORKERFS', {
+                files: [file.raw],
+            }, inputDir);
+            var args = ['-i', inputFile];
+            var params = this.params.trim();
+            if (params != "") args = args.concat(params.split(" "));
+            args.push(this.outputName);
+            console.log(args);
+            await ffmpeg.exec(args);
+            const data = await ffmpeg.readFile(this.outputName);
+            downloadFileByBlob(URL.createObjectURL(new Blob([data.buffer], {
+                type: "application/octet-stream"
+            })), this.outputName);
+            await ffmpeg.unmount(inputDir);
+            await ffmpeg.deleteDir(inputDir);
+            this.loading = false;
+            log("正在导出文件...")
+        }
+    }
 })
 </script>
 </html>
