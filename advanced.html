@@ -20,7 +20,7 @@
     </script>
 </head>
 <body>
-<div id="app" style="margin-left: 10%; margin-right: 10%;">
+<div id="app" style="margin-left: 10%; margin-right: 10%; margin-bottom: 5%;">
     <h1>FFmpeg Online Converter - Expert Mode</h1>
     <el-row>
         <p>Language/语言:
@@ -45,6 +45,12 @@
             <el-link type="success" href="https://tool.gcc.ac.cn/">https://tool.gcc.ac.cn/</el-link>
         </p>
     </el-row>
+    <h2>Configuration</h2>
+    <el-row>
+        Thread Mode:
+        <el-switch v-model="threadMode" active-text="Multithread (faster but unstable and not supported by all browsers)"
+                   inactive-text="Single thread" @change="reloadFFmpeg"></el-switch>
+    </el-row>
     <h2>Transcoding Command</h2>
     <el-form :inline="true">
         <el-form-item label="ffmpeg -i">
@@ -65,12 +71,15 @@
     <h2>System Output</h2>
     <el-card class="box-card">
         <pre id="tty" style="white-space: pre-wrap; word-wrap: break-word;">Loading FFmpeg, please wait...</pre>
+        <el-row v-if="downloading">
+            <p v-model="currentLoadingUrl">Downloading: {{currentLoadingUrl}}</p>
+            <el-progress :percentage="percentage"></el-progress>
+        </el-row>
     </el-card>
 </div>
 </body>
 <script crossorigin="anonymous" src="https://unpkg.com/vue@2.7.16/dist/vue.min.js"></script>
 <script crossorigin="anonymous" src="https://unpkg.com/element-ui@2.15.14/lib/index.js"></script>
-<script src="url.js"></script>
 <script src="common.js"></script>
 <script>
 new Vue({
@@ -80,15 +89,39 @@ new Vue({
         fileList: [],
         file: null,
         params: "-c:v copy -c:a copy",
-        outputName: "output.mp4"
+        outputName: "output.mp4",
+        percentage: 0,
+        threadMode: false,
+        currentLoadingUrl: "",
+        total: 0,
+        received: 0,
+        downloading: false,
     },
     mounted: async function() {
         this.loading = true;
-        await load();
+        this.downloading = true;
+        await load(this.threadMode, this.cb);
+        this.downloading = false;
         this.loading = false;
         log("FFmpeg Loaded!");
     },
     methods: {
+        cb: function(data) {
+            this.currentLoadingUrl = data.url;
+            this.total = data.total;
+            this.received = data.received;
+            this.percentage = ((data.received / data.total) * 100).toFixed(0);
+        },
+        reloadFFmpeg: async function() {
+            cleanLog();
+            log("Reloading FFmpeg...");
+            this.loading = true;
+            this.downloading = true;
+            await load(this.threadMode, this.cb);
+            this.downloading = false;
+            this.loading = false;
+            log("FFmpeg Loaded!");
+        },
         handleFiles(file, fileList) {
             this.file = file;
             this.fileList = fileList;
@@ -100,6 +133,7 @@ new Vue({
             this.$refs.upload.handleStart(files[0]);
         },
         start: async function() {
+            cleanLog();
             const file = this.file;
             this.loading = true;
             console.log(file.name);
@@ -114,15 +148,19 @@ new Vue({
             if (params != "") args = args.concat(params.split(" "));
             args.push(this.outputName);
             console.log(args);
-            await ffmpeg.exec(args);
-            const data = await ffmpeg.readFile(this.outputName);
-            downloadFileByBlob(URL.createObjectURL(new Blob([data.buffer], {
-                type: "application/octet-stream"
-            })), this.outputName);
+            const err = await ffmpeg.exec(args);
+            if (err != 0) {
+                log("<strong>Transcode Error! Please see the log above.</strong>");
+            } else {
+                log("Exporting output file...");
+                const data = await ffmpeg.readFile(this.outputName);
+                downloadFileByBlob(URL.createObjectURL(new Blob([data.buffer], {
+                    type: "application/octet-stream"
+                })), this.outputName);
+            }
             await ffmpeg.unmount(inputDir);
             await ffmpeg.deleteDir(inputDir);
             this.loading = false;
-            log("Exporting output file...")
         }
     }
 })

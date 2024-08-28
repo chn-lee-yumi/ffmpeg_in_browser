@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <title>FFmpeg Online Converter</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="FFmpeg online converter. Web-based FFmpeg. Online audio and video converter. Easily convert video and audio formats using your browser. Converting speed depends on your computer's performance.">
+    <meta name="description"
+          content="FFmpeg online converter. Web-based FFmpeg. Online audio and video converter. Easily convert video and audio formats using your browser. Converting speed depends on your computer's performance.">
     <link crossorigin="anonymous" rel="stylesheet" href="https://unpkg.com/element-ui@2.15.14/lib/theme-chalk/index.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="alternate" hreflang="en" href="index.html"/>
     <link rel="alternate" hreflang="zh" href="index_zh.html"/>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8336276656855850" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8336276656855850"
+            crossorigin="anonymous"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZZQVLS89C"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -20,7 +22,7 @@
     </script>
 </head>
 <body>
-<div id="app" style="margin-left: 10%; margin-right: 10%;">
+<div id="app" style="margin-left: 10%; margin-right: 10%; margin-bottom: 5%;">
     <h1>FFmpeg Online Converter</h1>
     <el-row>
         <p>Language/语言:
@@ -48,6 +50,11 @@
     </el-row>
     <h2>Transcoding Parameters</h2>
     <el-row>
+        Thread Mode:
+        <el-switch v-model="threadMode" active-text="Multithread (faster but unstable and not supported by all browsers)"
+                   inactive-text="Single thread" @change="reloadFFmpeg"></el-switch>
+    </el-row>
+    <el-row>
         Video Bitrate:
         <el-input placeholder="Leave blank for default, e.g., 2m, 1m, 512k" v-model="videoBitrate" style="width: 30%;"></el-input>
         (Note: Leave blank for audio files)
@@ -68,12 +75,15 @@
     <h2>System Output</h2>
     <el-card class="box-card">
         <pre id="tty" style="white-space: pre-wrap; word-wrap: break-word;">Loading FFmpeg, please wait...</pre>
+        <el-row v-if="downloading">
+            <p v-model="currentLoadingUrl">Downloading: {{currentLoadingUrl}}</p>
+            <el-progress :percentage="percentage"></el-progress>
+        </el-row>
     </el-card>
 </div>
 </body>
 <script crossorigin="anonymous" src="https://unpkg.com/vue@2.7.16/dist/vue.min.js"></script>
 <script crossorigin="anonymous" src="https://unpkg.com/element-ui@2.15.14/lib/index.js"></script>
-<script src="url.js"></script>
 <script src="common.js"></script>
 <script>
 new Vue({
@@ -83,16 +93,41 @@ new Vue({
         fileList: [],
         videoBitrate: "",
         audioBitrate: "",
-        outputName: "output.mp4"
+        outputName: "output.mp4",
+        percentage: 0,
+        threadMode: false,
+        currentLoadingUrl: "",
+        total: 0,
+        received: 0,
+        downloading: false,
     },
     mounted: async function() {
         this.loading = true;
-        await load();
+        this.downloading = true;
+        await load(this.threadMode, this.cb);
+        this.downloading = false;
         this.loading = false;
         log("FFmpeg Loaded!");
     },
     methods: {
+        cb: function(data) {
+            this.currentLoadingUrl = data.url;
+            this.total = data.total;
+            this.received = data.received;
+            this.percentage = ((data.received / data.total) * 100).toFixed(0);
+        },
+        reloadFFmpeg: async function() {
+            cleanLog();
+            log("Reloading FFmpeg...");
+            this.loading = true;
+            this.downloading = true;
+            await load(this.threadMode, this.cb);
+            this.downloading = false;
+            this.loading = false;
+            log("FFmpeg Loaded!");
+        },
         handleFiles: async function(file, fileList) {
+            cleanLog();
             this.loading = true;
             console.log(file.name);
             const inputDir = '/input';
@@ -111,15 +146,19 @@ new Vue({
             args.push(this.outputName);
             this.fileList = [];
             console.log(args);
-            await ffmpeg.exec(args);
-            const data = await ffmpeg.readFile(this.outputName);
-            downloadFileByBlob(URL.createObjectURL(new Blob([data.buffer], {
-                type: "application/octet-stream"
-            })), this.outputName);
+            const err = await ffmpeg.exec(args);
+            if (err != 0) {
+                log("<strong>Transcode Error! Please see the log above.</strong>");
+            } else {
+                log("Exporting output file...");
+                const data = await ffmpeg.readFile(this.outputName);
+                downloadFileByBlob(URL.createObjectURL(new Blob([data.buffer], {
+                    type: "application/octet-stream"
+                })), this.outputName);
+            }
             await ffmpeg.unmount(inputDir);
             await ffmpeg.deleteDir(inputDir);
             this.loading = false;
-            log("Exporting output file...")
         }
     }
 })

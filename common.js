@@ -1,10 +1,18 @@
 var ffmpeg = null;
 var tryMultiThread = false; // currently use false since it's not stable
 
-const fetchFile = async (url) => {
-    var resp = await fetch(url);
-    var buffer = await resp.arrayBuffer();
-    return new Uint8Array(buffer);
+const CORE_VERSION = "0.12.6"
+const FFMPEG_VERSION = "0.12.10"
+const baseURLFFMPEG = `https://unpkg.com/@ffmpeg/ffmpeg@${FFMPEG_VERSION}/dist/umd`;
+const baseURLCore = `https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/umd`;
+const baseURLCoreMT = `https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/umd`;
+const CORE_SIZE = {
+  [`https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/umd/ffmpeg-core.js`]: 114673,
+  [`https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/umd/ffmpeg-core.wasm`]: 32129114,
+  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/umd/ffmpeg-core.js`]: 132680,
+  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/umd/ffmpeg-core.wasm`]: 32609891,
+  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/umd/ffmpeg-core.worker.js`]: 2915,
+  [`https://unpkg.com/@ffmpeg/ffmpeg@${FFMPEG_VERSION}/dist/umd/814.ffmpeg.js`]: 2648,
 };
 
 const toBlobURLPatched = async (url, mimeType, patcher) => {
@@ -17,14 +25,41 @@ const toBlobURLPatched = async (url, mimeType, patcher) => {
     return URL.createObjectURL(blob);
 };
 
-const toBlobURL = async (url, mimeType) => {
-    var resp = await fetch(url);
-    var body = await resp.blob();
-    var blob = new Blob([body], {
-        type: mimeType
-    });
+const toBlobURL = async (url, mimeType, cb) => {
+    const resp = await fetch(url);
+    let buf;
+    if (!resp.ok) {
+        throw new Error(`HTTP error! status: ${resp.status}`);
+    }
+    const total = CORE_SIZE[url];
+    let loaded = 0;
+    const reader = resp.body.getReader();
+    const chunks = [];
+    let received = 0;
+    for (;;) {
+        const { done, value } = await reader.read();
+        const delta = value ? value.length : 0;
+        if (done) {
+            if (total != -1 && total !== received) throw new Error(`Incompleted download!`);
+            cb && cb({ url, total, received, delta, done });
+            break;
+        }
+        chunks.push(value);
+        received += delta;
+        cb && cb({ url, total, received, delta, done });
+    }
+    const data = new Uint8Array(received);
+    let position = 0;
+    for (const chunk of chunks) {
+      data.set(chunk, position);
+      position += chunk.length;
+    }
+    const stream = data.buffer;
+    const body = await new Response(stream).blob();
+    const blob = new Blob([body], { type: mimeType });
     return URL.createObjectURL(blob);
 };
+
 
 function log(message) {
     document.getElementById("tty")
@@ -32,7 +67,12 @@ function log(message) {
         .innerHTML + "</br>" + message;
 }
 
-const load = async () => {
+function cleanLog() {
+    document.getElementById("tty").innerHTML = "";
+}
+
+const load = async (threadMode, cb) => {
+    tryMultiThread = threadMode;
     const ffmpegBlobURL = await toBlobURLPatched(`${baseURLFFMPEG}/ffmpeg.js`, 'text/javascript', (js) => js.replace('new URL(e.p+e.u(814),e.b)', 'r.workerLoadURL'));
     await import(ffmpegBlobURL);
     ffmpeg = new FFmpegWASM.FFmpeg();
@@ -47,17 +87,17 @@ const load = async () => {
     if (tryMultiThread && window.crossOriginIsolated) {
         console.log("multi-threaded");
         await ffmpeg.load({
-            workerLoadURL: await toBlobURL(`${baseURLFFMPEG}/814.ffmpeg.js`, 'text/javascript'),
-            coreURL: await toBlobURL(`${baseURLCoreMT}/ffmpeg-core.js`, 'text/javascript'),
-            wasmURL: await toBlobURL(`${baseURLCoreMT}/ffmpeg-core.wasm`, 'application/wasm'),
-            workerURL: await toBlobURL(`${baseURLCoreMT}/ffmpeg-core.worker.js`, 'application/javascript'),
+            workerLoadURL: await toBlobURL(`${baseURLFFMPEG}/814.ffmpeg.js`, 'text/javascript', cb),
+            coreURL: await toBlobURL(`${baseURLCoreMT}/ffmpeg-core.js`, 'text/javascript', cb),
+            wasmURL: await toBlobURL(`${baseURLCoreMT}/ffmpeg-core.wasm`, 'application/wasm', cb),
+            workerURL: await toBlobURL(`${baseURLCoreMT}/ffmpeg-core.worker.js`, 'application/javascript', cb),
         });
     } else {
         console.log("single-threaded");
         await ffmpeg.load({
-            workerLoadURL: await toBlobURL(`${baseURLFFMPEG}/814.ffmpeg.js`, 'text/javascript'),
-            coreURL: await toBlobURL(`${baseURLCore}/ffmpeg-core.js`, 'text/javascript'),
-            wasmURL: await toBlobURL(`${baseURLCore}/ffmpeg-core.wasm`, 'application/wasm'),
+            workerLoadURL: await toBlobURL(`${baseURLFFMPEG}/814.ffmpeg.js`, 'text/javascript', cb),
+            coreURL: await toBlobURL(`${baseURLCore}/ffmpeg-core.js`, 'text/javascript', cb),
+            wasmURL: await toBlobURL(`${baseURLCore}/ffmpeg-core.wasm`, 'application/wasm', cb),
         });
     }
     console.log('ffmpeg load success');
