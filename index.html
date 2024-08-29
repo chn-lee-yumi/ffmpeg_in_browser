@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FFmpeg Online Converter</title>
+    <title>FFmpeg Online Converter - Free Media Converter</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-          content="FFmpeg online converter. Web-based FFmpeg. Online audio and video converter. Easily convert video and audio formats using your browser. Converting speed depends on your computer's performance.">
+          content="FFmpeg online converter. Web-based FFmpeg. Online image, audio and video converter. Easily convert video and audio formats using your browser. Converting speed depends on your computer's performance.">
     <link crossorigin="anonymous" rel="stylesheet" href="https://unpkg.com/element-ui@2.15.14/lib/theme-chalk/index.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="alternate" hreflang="en" href="index.html"/>
@@ -33,7 +33,7 @@
     <h2>Introduction</h2>
     <el-row>
         <p>Convert video and audio formats easily. Supports mp3 to wav, ogg to mp3, mp4 to gif, webm to mp4, mp4 to mp3, svg to png, etc.</p>
-        <p>Use your browser to transcode; the speed depends on your computer's performance. It's recommended for converting short videos or audio
+        <p>Your files will be processed locally, ensuring safety and privacy. Use your browser to transcode; the speed depends on your computer's performance. It's recommended for converting short videos or audio
             files only. For large videos, use professional software for transcoding.</p>
         <p>
             <el-link type="warning" href="advanced.html">Click to switch to Expert Mode</el-link>
@@ -57,11 +57,12 @@
     <el-row>
         Video Bitrate:
         <el-input placeholder="Leave blank for default, e.g., 2m, 1m, 512k" v-model="videoBitrate" style="width: 30%;"></el-input>
-        (Note: Leave blank for audio files)
+        (Note: Leave blank for image and audio files)
     </el-row>
     <el-row>
         Audio Bitrate:
         <el-input placeholder="Leave blank for default, e.g., 128k, 96k" v-model="audioBitrate" style="width: 30%;"></el-input>
+        (Note: Leave blank for image files)
     </el-row>
     <el-row>
         Output Filename:

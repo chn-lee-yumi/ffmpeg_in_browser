@@ -2,9 +2,9 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>FFmpeg在线转码（FFmpeg网页版）</title>
+    <title>FFmpeg在线转码 - 免费图片音频视频转码</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="FFmpeg在线转码。FFmpeg网页版。在线音视频转码，格式转换。通过浏览器轻松转换视频和音频格式。转码速度取决于您计算机的性能。">
+    <meta name="description" content="FFmpeg在线转码。FFmpeg网页版。在线图片音频视频转码，格式转换。通过浏览器轻松转换视频和音频格式。转码速度取决于您计算机的性能。">
     <link crossorigin="anonymous" rel="stylesheet" href="https://unpkg.com/element-ui@2.15.14/lib/theme-chalk/index.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="alternate" hreflang="en" href="index.html" />
@@ -31,7 +31,7 @@
     <h2>系统介绍</h2>
     <el-row>
         <p>视频音频格式随便转。支持 MP3 转 WAV，ogg 转 MP3，mp4 转 gif，webm 转 mp4，mp4 转 mp3，svg 转 png 等等。</p>
-        <p>使用浏览器转码，速度取决于你的电脑性能。仅推荐转短视频或音频，大型视频请使用专业软件转码。视频截取等高级功能请使用专家模式。</p>
+        <p>你的文件将在本地进行处理，保证安全隐私。使用浏览器转码，速度取决于你的电脑性能。仅推荐转短视频或音频，大型视频请使用专业软件转码。视频截取等高级功能请使用专家模式。</p>
         <p>
             <el-link type="warning" href="advanced_zh.html">点击切换到专家模式</el-link>
         </p>
@@ -52,11 +52,12 @@
     <el-row>
         视频码率：
         <el-input placeholder="留空代表默认，示例值：2m, 1m, 512k" v-model="videoBitrate" style="width: 30%;"></el-input>
-        （注：音频文件请留空）
+        （注：图片和音频文件请留空）
     </el-row>
     <el-row>
         音频码率：
         <el-input placeholder="留空代表默认，示例值：128k, 96k" v-model="audioBitrate" style="width: 30%;"></el-input>
+        （注：图片文件请留空）
     </el-row>
     <el-row>
         输出文件名：
