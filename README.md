@@ -10,4 +10,4 @@ Try online: https://ffmpeg.gcc.ac.cn/
 
 # TODO
 
-- 增加FFmpeg命令生成工具
+- 支持导出图像序列

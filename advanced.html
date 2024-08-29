@@ -45,27 +45,38 @@
             <el-link type="success" href="https://tool.gcc.ac.cn/">https://tool.gcc.ac.cn/</el-link>
         </p>
     </el-row>
-    <h2>Configuration</h2>
+    <!--<h2>Configuration</h2>
     <el-row>
         Thread Mode:
         <el-switch v-model="threadMode" active-text="Multithread (faster but unstable and not supported by all browsers)"
                    inactive-text="Single thread" @change="reloadFFmpeg"></el-switch>
     </el-row>
+    <h2>Quick Command</h2>-->
+    <el-row>
+        <el-button type="info" @click="setParams(``, `-c:v copy -c:a copy`, `output.mp4`)">Copy Video and Sound Stream to MP4</el-button>
+        <el-button type="info" @click="setParams(`-ss 5 -to 15`, `-c:v copy -c:a copy`, `output.mp4`)">Clip First 5-15 Seconds</el-button>
+        <el-button type="info" @click="setParams(``, `-q:v 2`, `output.jpg`)">Convert to JPG and Set Quality</el-button>
+        <el-button type="info" @click="setParams(``, `-b:v 192k`, `output.mp3`)">Convert to MP3 and Set Quality</el-button>
+        <el-button type="info" @click="setParams(``, `-ac 1`, `output.wav`)">Convert to Mono WAV</el-button>
+    </el-row>
     <h2>Transcoding Command</h2>
     <el-form :inline="true">
-        <el-form-item label="ffmpeg -i">
+        <el-form-item label="ffmpeg">
+            <el-input placeholder="Parameters Before -i" v-model="paramsFront" class="input-with-select" style="width: 200px"></el-input>
+        </el-form-item>
+        <el-form-item label="-i">
             <el-upload ref="upload" :on-change="handleFiles" :auto-upload="false" limit="1" multiple="false" :on-exceed="handleExceed">
                 <el-button size="big" type="primary">Select File</el-button>
             </el-upload>
         </el-form-item>
         <el-form-item>
-            <el-input placeholder="Command Parameters" v-model="params" class="input-with-select" style="width: 550px"></el-input>
+            <el-input placeholder="Parameters After -i" v-model="params" class="input-with-select" style="width: 500px"></el-input>
         </el-form-item>
         <el-form-item label="-o">
             <el-input placeholder="Output Filename" v-model="outputName" class="input-with-select" style="width: 150px"></el-input>
         </el-form-item>
         <el-form-item>
-            <el-button size="big" type="success" @click="start" v-loading="loading">Run</el-button>
+            <el-button size="big" type="success" @click="start" v-loading="loading" :disabled="loading" >Run</el-button>
         </el-form-item>
     </el-form>
     <h2>System Output</h2>
@@ -88,6 +99,7 @@ new Vue({
         loading: false,
         fileList: [],
         file: null,
+        paramsFront: "",
         params: "-c:v copy -c:a copy",
         outputName: "output.mp4",
         percentage: 0,
@@ -106,6 +118,11 @@ new Vue({
         log("FFmpeg Loaded!");
     },
     methods: {
+        setParams: function(paramsFront, params, output) {
+            this.paramsFront = paramsFront;
+            this.params = params;
+            this.outputName = output;
+        },
         cb: function(data) {
             this.currentLoadingUrl = data.url;
             this.total = data.total;
@@ -135,6 +152,10 @@ new Vue({
         start: async function() {
             cleanLog();
             const file = this.file;
+            if (this.file == null) {
+                alert("Please select file.");
+                return;
+            }
             this.loading = true;
             console.log(file.name);
             const inputDir = '/input';
@@ -143,7 +164,11 @@ new Vue({
             await ffmpeg.mount('WORKERFS', {
                 files: [file.raw],
             }, inputDir);
-            var args = ['-i', inputFile];
+            var args = [];
+            var paramsFront = this.paramsFront.trim();
+            if (paramsFront != "") args = args.concat(paramsFront.split(" "));
+            var middleArgs = ['-i', inputFile];
+            args = args.concat(middleArgs);
             var params = this.params.trim();
             if (params != "") args = args.concat(params.split(" "));
             args.push(this.outputName);
