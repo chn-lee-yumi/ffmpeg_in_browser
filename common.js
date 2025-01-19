@@ -3,16 +3,17 @@ var tryMultiThread = false; // currently use false since it's not stable, and it
 
 const FFMPEG_VERSION = "0.12.15"
 const baseURLFFMPEG = `https://unpkg.com/@ffmpeg/ffmpeg@${FFMPEG_VERSION}/dist/umd`;
-const CORE_VERSION = "0.12.6"
+const CORE_VERSION = "0.12.10"
 const baseURLCore = `https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/umd`;
-const baseURLCoreMT = `https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/umd`;
+const CORE_MT_VERSION = "0.12.9"
+const baseURLCoreMT = `https://unpkg.com/@ffmpeg/core-mt@${CORE_MT_VERSION}/dist/umd`;
 const CORE_SIZE = {
-  [`https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/umd/ffmpeg-core.js`]: 114673,
-  [`https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/umd/ffmpeg-core.wasm`]: 32129114,
-  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/umd/ffmpeg-core.js`]: 132680,
-  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/umd/ffmpeg-core.wasm`]: 32609891,
-  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/umd/ffmpeg-core.worker.js`]: 2915,
-  [`https://unpkg.com/@ffmpeg/ffmpeg@${FFMPEG_VERSION}/dist/umd/814.ffmpeg.js`]: 2648,
+  [`https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/umd/ffmpeg-core.js`]: 112059,
+  [`https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/umd/ffmpeg-core.wasm`]: 32232419,
+  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_MT_VERSION}/dist/umd/ffmpeg-core.js`]: 132680, // TODO: update size
+  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_MT_VERSION}/dist/umd/ffmpeg-core.wasm`]: 32609891, // TODO: update size
+  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_MT_VERSION}/dist/umd/ffmpeg-core.worker.js`]: 2915, // TODO: update size
+  [`https://unpkg.com/@ffmpeg/ffmpeg@${FFMPEG_VERSION}/dist/umd/814.ffmpeg.js`]: 3177,
 };
 
 const toBlobURLPatched = async (url, mimeType, patcher) => {
