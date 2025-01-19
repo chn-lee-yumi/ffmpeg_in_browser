@@ -1,9 +1,9 @@
 var ffmpeg = null;
-var tryMultiThread = false; // currently use false since it's not stable
+var tryMultiThread = false; // currently use false since it's not stable, and it need a special HTTP header which github.io doesn't support
 
-const CORE_VERSION = "0.12.6"
-const FFMPEG_VERSION = "0.12.10"
+const FFMPEG_VERSION = "0.12.15"
 const baseURLFFMPEG = `https://unpkg.com/@ffmpeg/ffmpeg@${FFMPEG_VERSION}/dist/umd`;
+const CORE_VERSION = "0.12.6"
 const baseURLCore = `https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/umd`;
 const baseURLCoreMT = `https://unpkg.com/@ffmpeg/core-mt@${CORE_VERSION}/dist/umd`;
 const CORE_SIZE = {
