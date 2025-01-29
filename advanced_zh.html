@@ -40,12 +40,12 @@
             <el-link type="success" href="https://tool.gcc.ac.cn/">https://tool.gcc.ac.cn/</el-link>
         </p>
     </el-row>
-    <!--<h2>配置</h2>
+    <h2>配置</h2>
     <el-row>
         线程模式:
-        <el-switch v-model="threadMode" active-text="多线程 (更快但不稳定，只有部分浏览器支持)"
+        <el-switch v-model="threadMode" active-text="多线程 (更快但不稳定，只有部分浏览器支持，如遇报错请切回单线程)"
                    inactive-text="单线程" @change="reloadFFmpeg"></el-switch>
-    </el-row>-->
+    </el-row>
     <h2>Quick Command</h2>
     <el-row>
         <el-button type="info" @click="setParams(``, `-c:v copy -c:a copy`, `output.mp4`)">Copy Video and Sound Stream to MP4</el-button>

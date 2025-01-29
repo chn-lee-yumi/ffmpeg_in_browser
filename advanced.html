@@ -45,13 +45,13 @@
             <el-link type="success" href="https://tool.gcc.ac.cn/">https://tool.gcc.ac.cn/</el-link>
         </p>
     </el-row>
-    <!--<h2>Configuration</h2>
+    <h2>Configuration</h2>
     <el-row>
         Thread Mode:
-        <el-switch v-model="threadMode" active-text="Multithread (faster but unstable and not supported by all browsers)"
+        <el-switch v-model="threadMode" active-text="Multithread (faster but unstable and not supported by all browsers, please switch it off when encountering errors)"
                    inactive-text="Single thread" @change="reloadFFmpeg"></el-switch>
     </el-row>
-    <h2>Quick Command</h2>-->
+    <h2>Quick Command</h2>
     <el-row>
         <el-button type="info" @click="setParams(``, `-c:v copy -c:a copy`, `output.mp4`)">Copy Video and Sound Stream to MP4</el-button>
         <el-button type="info" @click="setParams(`-ss 5 -to 15`, `-c:v copy -c:a copy`, `output.mp4`)">Clip First 5-15 Seconds</el-button>
