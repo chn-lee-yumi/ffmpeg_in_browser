@@ -9,6 +9,7 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="alternate" hreflang="en" href="index.html" />
     <link rel="alternate" hreflang="zh" href="index_zh.html" />
+    <script src="enable-threads.js"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8336276656855850" crossorigin="anonymous"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZZQVLS89C"></script>
     <script>
@@ -44,11 +45,11 @@
         </p>
     </el-row>
     <h2>转码参数</h2>
-    <!--<el-row>
+    <el-row>
         线程模式:
         <el-switch v-model="threadMode" active-text="多线程 (更快但不稳定，只有部分浏览器支持)"
                    inactive-text="单线程" @change="reloadFFmpeg"></el-switch>
-    </el-row>-->
+    </el-row>
     <el-row>
         视频码率：
         <el-input placeholder="留空代表默认，示例值：2m, 1m, 512k" v-model="videoBitrate" style="width: 30%;"></el-input>
