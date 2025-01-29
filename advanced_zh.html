@@ -46,13 +46,13 @@
         <el-switch v-model="threadMode" active-text="多线程 (更快但不稳定，只有部分浏览器支持，如遇报错请切回单线程)"
                    inactive-text="单线程" @change="reloadFFmpeg"></el-switch>
     </el-row>
-    <h2>Quick Command</h2>
+    <h2>快捷指令</h2>
     <el-row>
-        <el-button type="info" @click="setParams(``, `-c:v copy -c:a copy`, `output.mp4`)">Copy Video and Sound Stream to MP4</el-button>
-        <el-button type="info" @click="setParams(`-ss 5 -to 15`, `-c:v copy -c:a copy`, `output.mp4`)">Clip First 5-15 Seconds</el-button>
-        <el-button type="info" @click="setParams(``, `-q:v 3`, `output.jpg`)">Convert to JPG and Set Quality</el-button>
-        <el-button type="info" @click="setParams(``, `-b:v 192k`, `output.mp3`)">Convert to MP3 and Set Quality</el-button>
-        <el-button type="info" @click="setParams(``, `-ac 1`, `output.wav`)">Convert to Mono WAV</el-button>
+        <el-button type="info" @click="setParams(``, `-c:v copy -c:a copy`, `output.mp4`)">复制视频和声音流到MP4</el-button>
+        <el-button type="info" @click="setParams(`-ss 5 -to 15`, `-c:v copy -c:a copy`, `output.mp4`)">裁剪第5-15秒</el-button>
+        <el-button type="info" @click="setParams(``, `-q:v 3`, `output.jpg`)">转JPG并设置质量</el-button>
+        <el-button type="info" @click="setParams(``, `-b:v 192k`, `output.mp3`)">转MP3并设置质量</el-button>
+        <el-button type="info" @click="setParams(``, `-ac 1`, `output.wav`)">转单声道WAV</el-button>
     </el-row>
     <h2>转码命令</h2>
     <el-form :inline="true">
