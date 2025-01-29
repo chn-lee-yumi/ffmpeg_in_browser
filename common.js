@@ -10,9 +10,9 @@ const baseURLCoreMT = `https://unpkg.com/@ffmpeg/core-mt@${CORE_MT_VERSION}/dist
 const CORE_SIZE = {
   [`https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/umd/ffmpeg-core.js`]: 112059,
   [`https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/umd/ffmpeg-core.wasm`]: 32232419,
-  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_MT_VERSION}/dist/umd/ffmpeg-core.js`]: 132680, // TODO: update size
-  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_MT_VERSION}/dist/umd/ffmpeg-core.wasm`]: 32609891, // TODO: update size
-  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_MT_VERSION}/dist/umd/ffmpeg-core.worker.js`]: 2915, // TODO: update size
+  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_MT_VERSION}/dist/umd/ffmpeg-core.js`]: 129115,
+  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_MT_VERSION}/dist/umd/ffmpeg-core.wasm`]: 32718323,
+  [`https://unpkg.com/@ffmpeg/core-mt@${CORE_MT_VERSION}/dist/umd/ffmpeg-core.worker.js`]: 2213,
   [`https://unpkg.com/@ffmpeg/ffmpeg@${FFMPEG_VERSION}/dist/umd/814.ffmpeg.js`]: 3177,
 };
 
