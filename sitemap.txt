@@ -1,4 +1,4 @@
-https://ffmpeg.gcc.ac.cn/index.html
+https://ffmpeg.gcc.ac.cn/
 https://ffmpeg.gcc.ac.cn/index_zh.html
 https://ffmpeg.gcc.ac.cn/advanced.html
 https://ffmpeg.gcc.ac.cn/advanced_zh.html
