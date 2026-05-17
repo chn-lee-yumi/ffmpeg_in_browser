@@ -34,6 +34,7 @@
     <h2>Introduction</h2>
     <el-row>
         <p>Convert video and audio formats easily. Supports mp3 to wav, ogg to mp3, mp4 to gif, webm to mp4, mp4 to mp3, svg to png, etc.</p>
+        <p>Usage: Configure parameters if needed, then select a file. Transcoding starts automatically once the file is chosen.</p>
         <p>Your files will be processed locally, ensuring safety and privacy. Use your browser to transcode; the speed depends on your computer's performance. It's recommended for converting short videos or audio
             files only. For large videos, use professional software for transcoding.</p>
         <p>
@@ -82,6 +83,30 @@
             <el-progress :percentage="percentage"></el-progress>
         </el-row>
     </el-card>
+    <h2>FAQs:</h2>
+    <h3>How to convert MP4 to GIF in browser without uploading?</h3>
+    <p>
+    Enter "output.gif" as Output Filename, then select an MP4 file using the Select File button. The conversion starts automatically in your browser after selection.
+    The video is processed locally using FFmpeg compiled to WebAssembly, and the output GIF is generated on your device.
+    When finished, the result is saved to your device via a browser download. No file is sent to any server.
+    </p>
+    <h3>How to extract audio from video?</h3>
+    <p>
+    Enter "output.mp3" as Output Filename, then select an video file using the Select File button. The conversion starts automatically in your browser after selection.
+    The video is processed locally using FFmpeg compiled to WebAssembly, and the output audio (mp3 file) is generated on your device.
+    When finished, the result is saved to your device via a browser download. No file is sent to any server.
+    </p>
+    <h3>Why FFmpeg Online Converter?</h3>
+    <p>
+    This tool is powered by <el-link type="info" target="_blank" href="https://ffmpeg.org/">FFmpeg</el-link>, an industry-standard open-source multimedia engine used for video and audio processing.
+    It runs entirely in your browser via WebAssembly, meaning your files are not uploaded to any server and stay on your device.
+    </p>
+    <h3>Why WebAssembly (WASM) makes local conversion secure?</h3>
+    <p>
+    WebAssembly (WASM) allows high-performance code such as FFmpeg to run directly inside the browser.
+    All processing happens locally, meaning your files never leave your device.
+    This reduces privacy risks and avoids server-side uploading, while still enabling fast media transcoding.
+    </p>
 </div>
 </body>
 <script crossorigin="anonymous" src="https://unpkg.com/vue@2.7.16/dist/vue.min.js"></script>

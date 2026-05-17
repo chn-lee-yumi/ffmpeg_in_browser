@@ -32,6 +32,7 @@
     <h2>系统介绍</h2>
     <el-row>
         <p>视频音频格式随便转。支持 MP3 转 WAV，ogg 转 MP3，mp4 转 gif，webm 转 mp4，mp4 转 mp3，svg 转 png 等等。</p>
+        <p>使用方法：配置转码参数（如果需要），然后选择文件。文件选择好之后会自动开始转码。</p>
         <p>你的文件将在本地进行处理，保证安全隐私。使用浏览器转码，速度取决于你的电脑性能。仅推荐转短视频或音频，大型视频请使用专业软件转码。视频截取等高级功能请使用专家模式。</p>
         <p>
             <el-link type="warning" href="advanced_zh.html">点击切换到专家模式</el-link>
@@ -77,6 +78,30 @@
             <el-progress :percentage="percentage"></el-progress>
         </el-row>
     </el-card>
+    <h2>常见问题（FAQs）:</h2>
+    <h3>如何在浏览器中将 MP4 转换为 GIF 且无需上传？</h3>
+    <p>
+    在“输出文件名”中输入“output.gif”，然后通过“选择文件”按钮选择 MP4 文件。选择完成后，转换会在浏览器中自动开始。
+    视频会使用编译为 WebAssembly（WASM）的 FFmpeg 在本地设备中处理，并生成 GIF 文件。
+    转换完成后，结果会通过浏览器下载方式保存到你的设备中，不会上传到任何服务器。
+    </p>
+    <h3>如何导出视频里的音频？</h3>
+    <p>
+    在“输出文件名”中输入“output.mp3”，然后通过“选择文件”按钮选择视频文件。选择完成后，转换会在浏览器中自动开始。
+    视频会使用编译为 WebAssembly（WASM）的 FFmpeg 在本地设备中处理，并生成 MP3 音频文件。
+    转换完成后，结果会通过浏览器下载方式保存到你的设备中，不会上传到任何服务器。
+    </p>
+    <h3>为什么使用 FFmpeg 在线转码？</h3>
+    <p>
+    该工具基于 <el-link type="info" target="_blank" href="https://ffmpeg.org/">FFmpeg</el-link>，一个业界标准的开源多媒体处理引擎，用于音视频处理。
+    它完全在浏览器中通过 WebAssembly（WASM）运行，因此文件不会上传到服务器，始终保留在本地设备中。
+    </p>
+    <h3>为什么 WebAssembly（WASM）能让本地转换更安全？</h3>
+    <p>
+    WebAssembly（WASM）允许像 FFmpeg 这样的高性能程序直接在浏览器中运行。
+    所有处理都在本地完成，文件不会离开设备，从而降低隐私风险并避免服务器上传。
+    同时，它仍然能够提供较高的转码性能，实现快速媒体处理。
+    </p>
 </div>
 </body>
 <script crossorigin="anonymous" src="https://unpkg.com/vue@2.7.16/dist/vue.min.js"></script>
